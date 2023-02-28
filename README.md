@@ -2,8 +2,11 @@
 
 ## Team members
 Ruoye Wang | 605625594
+
 Michael Jewett | 
+
  | 
+ 
  |
  
 ## Instructions
