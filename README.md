@@ -9,4 +9,4 @@ Michi Jewett
  |
  
 ## Instructions
-Project data not uploaded due to size limit. Data should be in a folder called 'project_data' that is in the root.
+Open the dqn_main.ipynb to view the experiments. It will take a long time to run everything, so it is best only to run the cells that are indicated as tests for demonstrations.
