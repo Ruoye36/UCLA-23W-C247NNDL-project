@@ -82,7 +82,7 @@ class dqnEnv(gym.Env):
           self.unseen_obstacles.remove(obstacle)
             
       robot_to_goal = distance.euclidean((self.x, self.y), (self.gx, self.gy))
-      robot_reward += 0.1*((sqrt(2)*self.size)-robot_to_goal);
+      robot_reward += 0.05*((sqrt(2)*self.size)-robot_to_goal);
         
       for i in range(0, len(self.seen_obstacles)):
         self.next_state[i+1] = distance.euclidean((self.x, self.y), (self.seen_obstacles[i].x, self.seen_obstacles[i].y))
