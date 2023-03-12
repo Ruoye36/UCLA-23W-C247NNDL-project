@@ -34,24 +34,24 @@ class DeepQNetwork(nn.Module):
         super(DeepQNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
         
-        self.bn1 = nn.LayerNorm(state_size)
-        self.lstm1 = nn.LSTM(state_size, 64)
+        self.bn1 = nn.BatchNorm1d(state_size)
+        self.fc0 = nn.Linear(state_size, 32)
         
-        self.bn2 = nn.LayerNorm(64)
-        self.fc1 = nn.Linear(64, 128)
+        self.bn2 = nn.BatchNorm1d(32)
+        self.fc1 = nn.Linear(32, 64)
         
         self.drop1 = nn.Dropout(0.05)
         
-        self.bn3 = nn.LayerNorm(128)
-        self.fc2 = nn.Linear(128, 128)
+        self.bn3 = nn.BatchNorm1d(64)
+        self.fc2 = nn.Linear(64, 64)
         
         self.drop2 = nn.Dropout(0.1)
         
-        self.bn4 = nn.LayerNorm(128)
-        self.fc3 = nn.Linear(128, 32)
+        self.bn4 = nn.BatchNorm1d(64)
+        self.fc3 = nn.Linear(64, 16)
         
-        self.bn5 = nn.LayerNorm(32)
-        self.lstm2 = nn.LSTM(32, action_size)
+        self.bn5 = nn.BatchNorm1d(16)
+        self.fc4 = nn.Linear(16, action_size)
         
 
     def forward(self, state):
@@ -59,23 +59,23 @@ class DeepQNetwork(nn.Module):
         x = state
         
         x = self.bn1(x)
-        x, y = self.lstm1(x)
+        x = torch.tanh(self.fc0(x))
         
-        x = self.bn2(x)
-        x = F.relu(self.fc1(x))
+        #x = self.bn2(x)
+        x = torch.tanh(self.fc1(x))
         
-        x = self.drop1(x)
+        #x = self.drop1(x)
         
-        x = self.bn3(x)
-        x = F.relu(self.fc2(x))
+        #x = self.bn3(x)
+        x = torch.tanh(self.fc2(x))
         
-        x = self.drop2(x)
+        #x = self.drop2(x)
         
-        x = self.bn4(x)
+        #x = self.bn4(x)
         x = F.relu(self.fc3(x))
         
-        x = self.bn5(x)
-        x, y = self.lstm2(x)
+        #x = self.bn5(x)
+        x = self.fc4(x)
         
         actions = x
         return actions
