@@ -12,17 +12,17 @@ import torch.optim as optim
 BUFFER_SIZE = int(1e5)  # replay buffer size
 # BATCH_SIZE = 64, 10 (10 is good), 5 better (the lower the better for some reason?)
 BATCH_SIZE = 5          # minibatch size
-GAMMA = 0.99            # discount factor
+GAMMA = 0.9995            # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR = 5e-4               # learning rate
-UPDATE_EVERY = 4        # how often to update the network
+LR = 7e-4               # learning rate
+UPDATE_EVERY = 1        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed, qnet_type='deep', checkpoint=None):
+    def __init__(self, state_size, action_size, seed, qnet_type='deep', checkpoint=None, pre=False, test=False):
         """Initialize an Agent object.
         
         Params
@@ -57,6 +57,9 @@ class Agent():
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
+        self.pre=pre
+        self.test=test
+        self.a = [0,0,0,6,6,0,0,0,4,4,6,0,0,0,0,0,0,0]
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
@@ -70,7 +73,8 @@ class Agent():
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
 
-    def act(self, state, eps=0.):
+        
+    def act(self, state, eps=0., t=0, i_episode=0):
         """Returns actions for given state as per current policy.
         
         Params
@@ -83,6 +87,27 @@ class Agent():
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
         self.qnetwork_local.train()
+        if (t>=len(self.a)):
+            if random.random() > eps:
+                return np.argmax(action_values.cpu().data.numpy())
+            else:
+                return random.choice(np.arange(self.action_size))
+            
+        action = self.a[t]
+        if self.test:
+            return action
+        if self.pre:
+            if i_episode > 5800:
+                return action
+            if (i_episode % 10 >= 3) and (i_episode > 5700):
+                return action
+            if (i_episode % 100 >= 99) and i_episode > 1500:
+                return action
+            elif (i_episode % 100 >= 80) and i_episode > 1000:
+                if random.random() > eps:
+                    return action
+                else:
+                    return random.choice(np.arange(self.action_size))
 
         # Epsilon-greedy action selection
         if random.random() > eps:
